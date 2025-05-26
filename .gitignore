@@ -1,0 +1,64 @@
+# Node.js
+node_modules/
+npm-debug.log
+yarn-error.log
+package-lock.json
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+env/
+venv/
+ENV/
+pip-log.txt
+pip-delete-this-directory.txt
+.tox/
+.nox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.log
+*.egg-info/
+dist/
+build/
+*.egg
+
+# OS-specific
+.DS_Store
+Thumbs.db
+
+# IDE-specific
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+
+# Local environment configuration
+.env
+
+# PlatformIO
+.pio/
+
+# Docker
+# (Usually Docker images are built and not stored, but if you have local docker-compose overrides or specific data volumes you don't want to share)
+# docker-compose.override.yml
+
+# Large data files / Models - these should be downloaded by users as per instructions
+# coqui-tts-api/coqui-models-data/ # This is already handled by being a submodule or downloaded on demand
+# coqui-tts-api/speaker-wavs/*.wav # If users add their own, they might not want to commit them.
+# coqui-tts-api/speaker-wavs/*.mp3 # However, the example Wj0v.wav should be kept.
+# A more specific rule could be to ignore all wav/mp3 in speaker-wavs except the example.
+# For now, let users manage their own speaker files. If Wj0v.wav is an example, it should be committed.
+
+# If there are other specific build artifacts or large files, add them here.
+
+coqui-tts-api/coqui-models-data/
+coqui-tts-api/speaker-wavs/

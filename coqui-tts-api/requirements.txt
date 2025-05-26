@@ -1,0 +1,12 @@
+fastapi>=0.95.0
+uvicorn>=0.21.0
+# Pin numpy to version 1.22.0 first (required by TTS)
+numpy==1.22.0
+# Install TTS after numpy is already in place
+TTS==0.22.0
+transformers==4.33.0 # Pinning transformers version to minimum required by TTS 0.22.0
+# Additional dependencies
+# soundfile might be needed for fallback saving
+soundfile>=0.12.1
+# For MP3 to WAV conversion
+pydub>=0.25.1

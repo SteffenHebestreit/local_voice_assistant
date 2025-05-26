@@ -1,0 +1,12 @@
+# Core dependencies
+websocket-client==1.5.1 # For WebSocket communication (ensure it's this one, not 'websockets')
+pyaudio==0.2.13 # For audio input/output
+python-dotenv==1.0.0 # For environment variable management
+
+# Wake Word dependencies
+vosk==0.3.45 # For wake word detection (open source, no API key required)
+numpy>=1.20.0 # For numerical computations
+
+# Optional alternative wake word engines
+# Uncomment if using Porcupine instead of Vosk
+# pvporcupine==2.2.1 # If using Picovoice Porcupine (requires separate installation and setup)

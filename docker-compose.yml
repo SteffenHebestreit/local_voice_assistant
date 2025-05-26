@@ -1,0 +1,114 @@
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    ports:
+      # Map host port (first value) to container port (second value)
+      # The container port should match the port your backend listens on (e.g., 3000)
+      # Use the BACKEND_PORT from the .env file for the container port
+      - "${BACKEND_PORT:-3000}:${BACKEND_PORT:-3000}" # Default to 3000 if not set
+    env_file:
+      - ./.env
+    #volumes:
+      # Optional: Mount local code for development (reflects changes without rebuilding)
+      # Uncomment if needed during active development:
+      # - ./backend:/usr/src/app
+      # - /usr/src/app/node_modules # Exclude node_modules from being overwritten by the host mount
+    networks:
+      - voiceapp-network
+    restart: unless-stopped
+    depends_on:
+      - whisper-api
+      - coqui-tts-api
+
+  web-ui:
+    build:
+      context: ./web_ui
+      dockerfile: Dockerfile
+    ports:
+      # Map a host port (e.g., 8080) to the container's Nginx port (80)
+      - "8080:80"
+    depends_on:
+      - backend # Optional: ensures backend starts before web-ui, though not strictly necessary for static files
+    networks:
+      - voiceapp-network
+    restart: unless-stopped
+  # Whisper.cpp API service for Speech-to-Text
+  whisper-api:
+    build:
+      context: ./whisper-api
+      dockerfile: Dockerfile
+    ports:
+      - "9000:9000"
+    env_file:
+      - ./.env
+    environment:
+      - ASR_MODEL=${WHISPER_MODEL:-base}
+      - WHISPER_LANGUAGE=${WHISPER_LANGUAGE:-auto}
+    volumes:
+      - whisper-models:/app/models # Keep volume for models
+      # Optional: Mount local code for development
+      # - ./whisper-api:/app
+    networks:
+      - voiceapp-network
+    restart: unless-stopped
+    # Resource limits for Whisper API - increased for small model
+    deploy:
+      resources:
+        limits:
+          memory: 4G # Increased for small model (was 1G)
+          cpus: '2' # Increased CPU allocation (was 1)
+        reservations:
+          memory: 2G # Reserve 2GB minimum
+          cpus: '1' # Reserve 1 CPU minimum
+  # Coqui TTS service for Text-to-Speech
+  coqui-tts-api:
+    build:
+      context: ./coqui-tts-api
+      dockerfile: Dockerfile
+    ports:
+      - "5002:5002" # Expose Coqui TTS API port
+    volumes:
+      # Updated paths to use the nested directory structure
+      - ./coqui-tts-api/coqui-models-data:/home/user/.local/share/tts
+      - ./coqui-tts-api/coqui-models-data:/root/.local/share/tts
+      - ./coqui-tts-api/speaker-wavs:/app/speaker_files
+    environment:
+      # --- Coqui TTS Configuration ---
+      # Choose your model:
+      # Standard English: "tts_models/en/ljspeech/tacotron2-DDC" (faster, lower quality)
+      # Standard English High Quality: "tts_models/en/vctk/vits" (slower, better quality)
+      # XTTS v2 (Multilingual, High Quality, Voice Clone): "tts_models/multilingual/multi-dataset/xtts_v2"
+      - COQUI_MODEL=tts_models/multilingual/multi-dataset/xtts_v2
+      # Required if using XTTS: Language code (e.g., en, de, fr, es, pt, pl, it, ru, tr, ja, zh-cn, ko)
+      - COQUI_LANGUAGE=de
+      # Required if using XTTS for voice cloning: Path *inside the container* to speaker wav
+      # Mount your local speaker wav file(s) via the volume above
+      - COQUI_SPEAKER_WAV=/app/speaker_files/Wj0v.wav # <-- ADJUST FILENAME HERE
+      # Enable/Disable CUDA (requires NVIDIA GPU and nvidia-docker)
+      - USE_CUDA=true
+      # Set timezone if needed
+      - TZ=Etc/UTC    # --- GPU Configuration (Requires nvidia-container-toolkit) ---
+    deploy:
+      resources:
+        limits: # Added limits for CPU and memory
+          memory: 8G # Increased memory limit to 8G due to OOM killer. Adjust as needed.
+          cpus: '2.0'  # Example: Allocate up to 2 CPU cores
+        reservations:
+          memory: 4G # Increased reservation to 4G. Adjust as needed.
+          cpus: '1.0'  # Example: Reserve 1 CPU core
+          devices:
+            - driver: nvidia
+              count: 1 # Request 1 GPU
+              capabilities: [gpu]
+    networks:
+      - voiceapp-network
+    restart: unless-stopped
+
+networks:
+  voiceapp-network:
+    driver: bridge
+
+volumes:
+  whisper-models:
