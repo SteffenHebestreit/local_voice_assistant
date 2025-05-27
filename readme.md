@@ -53,10 +53,9 @@ This project creates a multi-component voice assistant system that runs entirely
 
 1.  Clone this repository:
     ```bash
-    git clone https://github.com/YOUR_USERNAME/YOUR_REPOSITORY_NAME.git
-    cd YOUR_REPOSITORY_NAME
+    git clone https://github.com/SteffenHebestreit/local_voice_assistant.git
+    cd local_voice_assistant
     ```
-    (Replace `YOUR_USERNAME/YOUR_REPOSITORY_NAME` with your actual GitHub repository details after you create it.)
 
 2.  Prepare your environment:
    - Copy your speaker reference file(s) to `./coqui-tts-api/speaker-wavs/` directory (MP3 or WAV format)
